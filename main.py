@@ -8,6 +8,7 @@ import threading
 print_mode = False
 server_connection = None
 server_thread = None
+lock = threading.Lock()
 
 def command_mode():
     global server_connection
@@ -52,6 +53,9 @@ def send_mode():
     global server_connection
     global server_thread
     
+    #When server thread finishes, the connection is closed
+    if (not server_thread.is_alive()): 
+        server_connection = None
     if server_connection is None:
         command_mode()
 

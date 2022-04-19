@@ -1,7 +1,7 @@
 import socket
 import sys
 import config
-from main import server_connection
+from main import server_connection, lock
 import threading
 import re
 
@@ -38,7 +38,8 @@ def receive_message(sock):
 
         if message == b'':
             print("Connection closed by foreign host")
-            server_connection = None
-            # sys.exit(0)
+            with lock:
+                server_connection = None
+            sys.exit(0)
         else:
             print(message.decode(), end="")
