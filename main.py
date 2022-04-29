@@ -1,3 +1,11 @@
+# Implement a logger for caching.
+# When opens, it shows a list of visited sites
+# RM -item 5 to remove 5th field
+
+
+# Implement in a way which wouldn't add duplicated ips and hosts
+
+
 import sys
 import config
 import commands
@@ -29,7 +37,7 @@ def command_mode():
         sys.exit(0)
     elif command == "open":
         connection.run_loop = True
-        server_connection = commands.open()
+        server_connection = commands.openCon()
         server_thread = threading.Thread(target=connection.receive_message, args=([server_connection]))
         server_thread.start()
 
@@ -39,6 +47,23 @@ def command_mode():
         commands.status(server_connection)
     elif command == "help":
         commands.help()
+    elif command == "cache":
+        commands.show_cache()
+    elif "rmcache" in command:
+        try:
+            n = int(command.split()[1])
+            commands.rm_cache(n)
+        except:
+            print("Couldn't understand the input")
+    elif "opcache" in command:
+        try:
+            n = int(command.split()[1])
+            connection.run_loop = True
+            server_connection = commands.op_cache(n)
+            server_thread = threading.Thread(target=connection.receive_message, args=([server_connection]))
+            server_thread.start()
+        except:
+            print("Couldn't understand the input")
     else:
         pass
     
@@ -83,11 +108,14 @@ if __name__ == "__main__":
             print("Connection failed")
             command_mode()
         else:
+            print("Connected. Escape code is ^]")
             connection.run_loop = True
             server_thread = threading.Thread(target=connection.receive_message, args=([server_connection]))
             server_thread.start()
             send_mode()
     elif len(sys.argv) == 1:
+        print("Welcome. Printing cached connections: ")
+        commands.show_cache()
         command_mode()
     else:
         print("invalid amount of arguments")

@@ -14,6 +14,8 @@ def initialize_connection(host: str, port : str):
         
         try:
             s = socket.socket(family, type, protocol)
+            add_new_entry(host, port)                
+
         except OSError as msg:
             s = None
             continue
@@ -28,16 +30,26 @@ def initialize_connection(host: str, port : str):
         break
     return s
 
+
+
+def add_new_entry(host, port):
+    text = host + " " + port + "\n"
+    with open(config.cached_file, "r+") as cache:
+        for i in cache.readlines():
+            if i == text:
+                return
+        cache.write(text)
+
 def receive_message(sock):
     global server_connection
     while run_loop and sock is not None:
         try:
             message = sock.recv(config.message_size)
-        except None:
+        except:
             break
 
         if message == b'':
-            print("Connection closed by foreign host")
+            print("\nConnection closed by foreign host")
             with lock:
                 server_connection = None
             sys.exit(0)
